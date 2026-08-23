@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CARNAFER 2026</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    header {
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 36px;
+    }
+
+    header p {
+      margin: 10px 0 0;
+      font-size: 18px;
+    }
+
+    main {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .produto {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .produto h2 {
+      margin: 0 0 8px;
+    }
+
+    .preco {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .adicionar {
+      background: #1683ff;
+      color: white;
+    }
+
+    .remover {
+      background: #ddd;
+      color: #222;
+    }
+
+    .carrinho {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .item-carrinho {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .quantidade {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .total {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    #continuar {
+      width: 100%;
+      margin-top: 20px;
+      background: #00a650;
+      color: white;
+      font-size: 18px;
+      padding: 16px;
+    }
+
+    #continuar:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>🎉 CARNAFER 2026 🎉</h1>
+    <p>Ingressos</p>
+  </header>
+
+  <main>
+
+    <div class="produto">
+      <div>
+        <h2>🎟️ Adulto</h2>
+        <div class="preco">R$ 150,00</div>
+      </div>
+
+      <button class="adicionar" onclick="adicionar('adulto')">
+        Adicionar
+      </button>
+    </div>
+
+    <div class="produto">
+      <div>
+        <h2>🧒 Kids</h2>
+        <div class="preco">R$ 60,00</div>
+      </div>
+
+      <button class="adicionar" onclick="adicionar('kids')">
+        Adicionar
+      </button>
+    </div>
+
+    <div class="carrinho">
+
+      <h2>🛒 Seu carrinho</h2>
+
+      <div id="carrinho"></div>
+
+      <div class="total">
+        Total: R$ <span id="total">0,00</span>
+      </div>
+
+      <button id="continuar" onclick="irParaPagamento()" disabled>
+        CONTINUAR PARA PAGAMENTO
+      </button>
+
+    </div>
+
+  </main>
+
+  <script>
+
+    const produtos = {
+      adulto: {
+        nome: "Ingresso Adulto",
+        preco: 150
+      },
+
+      kids: {
+        nome: "Ingresso Kids",
+        preco: 60
+      }
+    };
+
+    const carrinho = {
+      adulto: 0,
+      kids: 0
+    };
+
+    function adicionar(tipo) {
+      carrinho[tipo]++;
+      atualizarCarrinho();
+    }
+
+    function remover(tipo) {
+      if (carrinho[tipo] > 0) {
+        carrinho[tipo]--;
+      }
+
+      atualizarCarrinho();
+    }
+
+    function atualizarCarrinho() {
+
+      const elemento = document.getElementById("carrinho");
+
+      elemento.innerHTML = "";
+
+      let total = 0;
+      let quantidadeTotal = 0;
+
+      for (const tipo in carrinho) {
+
+        const quantidade = carrinho[tipo];
+
+        if (quantidade > 0) {
+
+          const produto = produtos[tipo];
+
+          const subtotal = quantidade * produto.preco;
+
+          total += subtotal;
+          quantidadeTotal += quantidade;
+
+          elemento.innerHTML += `
+            <div class="item-carrinho">
+
+              <div>
+                <strong>${produto.nome}</strong><br>
+                R$ ${produto.preco.toFixed(2).replace(".", ",")}
+              </div>
+
+              <div class="quantidade">
+
+                <button
+                  class="remover"
+                  onclick="remover('${tipo}')">
+                  −
+                </button>
+
+                <strong>${quantidade}</strong>
+
+                <button
+                  class="adicionar"
+                  onclick="adicionar('${tipo}')">
+                  +
+                </button>
+
+              </div>
+
+            </div>
+          `;
+        }
+      }
+
+      document.getElementById("total").textContent =
+        total.toFixed(2).replace(".", ",");
+
+      document.getElementById("continuar").disabled =
+        quantidadeTotal === 0;
+    }
+
+    async function irParaPagamento() {
+
+      const itens = [];
+
+      for (const tipo in carrinho) {
+
+        if (carrinho[tipo] > 0) {
+
+          itens.push({
+            title: produtos[tipo].nome,
+            quantity: carrinho[tipo],
+            unit_price: produtos[tipo].preco
+          });
+
+        }
+      }
+
+      if (itens.length === 0) {
+        alert("Adicione pelo menos um ingresso.");
+        return;
+      }
+
+      try {
+
+        const resposta = await fetch("/api/create-preference", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            items: itens
+          })
+
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok || !dados.init_point) {
+
+          console.error(dados);
+
+          alert("Não foi possível iniciar o pagamento.");
+          return;
+        }
+
+        window.location.href = dados.init_point;
+
+      } catch (erro) {
+
+        console.error(erro);
+
+        alert("Erro ao conectar com o pagamento.");
+      }
+    }
+
+  </script>
+
+</body>
+</html>
