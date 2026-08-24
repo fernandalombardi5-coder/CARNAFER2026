@@ -14,16 +14,15 @@ export default async function handler(req, res) {
       });
     }
 
-    const { itens } = req.body;
+    const { items: itensRecebidos } = req.body;
 
-    if (!Array.isArray(itens) || itens.length === 0) {
-      return res.status(400).json({
-        erro: "Nenhum ingresso informado."
-      });
-    }
+if (!Array.isArray(itensRecebidos) || itensRecebidos.length === 0) {
+  return res.status(400).json({
+    erro: "Nenhum ingresso informado."
+  });
+}
 
-    const items = itens.map((item) => ({
-      title: item.titulo,
+const items = itensRecebidos.map((item) => ({
       quantity: Number(item.quantidade),
       currency_id: "BRL",
       unit_price: Number(item.preco_unitario)
